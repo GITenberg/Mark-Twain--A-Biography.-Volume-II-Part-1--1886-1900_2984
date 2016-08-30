@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: cDwl1n18H4qSo6BNqKbM/Qhbf9yQA9zJoIJZqvzCMk1fgrCeql6J7sH0B6xmROKOB7W84Gtvkm2nLL82oknomw5xeEQ4xUDY3OWwCrfR6pRd/DOegcHxn2ZghaHA+qbkviFilR7W18sjdgfObBAyZRw/LKUtbTSc9oM5uUG1YBhHSWQj1gukqMwVbu3FJ0If4nMGEBqYlS8KQV2BxgGDB1jENYGQnDLWmY+IjGQUAjhuwM8hkip6KHWZO+rkhzwhNy7WARWjfGVmBxXyUW3Qh0ub1iifjODhQNa3X6SCWdtOJ+FEnkBM0d17goy+m401VY+o/Bco8y39IQtn2xfwvt+X9r34/uEABYIj5BkBI+7eHukf4FVGKE7gdAGn1us+a7XBMk50BKitRCDnHAfFEFQr9kxpJCBH+DY/dQNOIpfyzxSv3hLJ2Juu0EnceNoMUUgmv3+OL9uCcdp1a33v5Y9/dOVXnnHy1LLpjcEcENfhbmFhd7l5moij3Eys0E7HJN+N+0I8LYLFbdFAdAQaYjmj0CxUOpodlJ+Nqf5i5sRU+r6k3JVxA+rbQPQRaxThYn5v6ZJEIu9qGG6kahcCZwt+LbMs6SNpqp7A6GpmrNFFWVQckp1ndMJr9Gq7R8FCUUn5MNPYIByW+oCzs8/DCGCiebJglcuNPqu+B2Anqks=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Mark-Twain--A-Biography.-Volume-II-Part-1--1886-1900_2984
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
